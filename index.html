@@ -91,21 +91,130 @@ console.log(uobj.parameters.to);
 </script> -->
 <script type="text/javascript">
   var QueryString = function () {
-  // This function is anonymous, is executed immediately and 
-  // the return value is assigned to QueryString!
   var query_string = {};
   var query = window.location.search.substring(1);
   var vars = query.split("&");
   for (var i=0;i<vars.length;i++) {
     var pair = vars[i].split("=");
-        // If first entry with this name
     if (typeof query_string[pair[0]] === "undefined") {
       query_string[pair[0]] = decodeURIComponent(pair[1]);
-        // If second entry with this name
     } else if (typeof query_string[pair[0]] === "string") {
       var arr = [ query_string[pair[0]],decodeURIComponent(pair[1]) ];
       query_string[pair[0]] = arr;
-        // If third or later entry with this name
+    } else {
+      query_string[pair[0]].push(decodeURIComponent(pair[1]));
+    }
+  } 
+  return query_string;
+}();
+// console.log(QueryString.from+QueryString.to+"........"+message);
+</script>
+<body>
+<img id="sba" src="http://janadesar.wirenode.mobi/img/M/R/media/1381110/r/img/ighxihms5pz.jpg.jpg">
+<div class="fullscreen-bg">
+    <!-- <video loop muted autoplay poster="img/videoframe.jpg" class="fullscreen-bg__video"> -->
+        <!-- <source src="video/big_buck_bunny.webm" type="video/webm"> -->
+        <!-- <source src="crackers.mp4" type="video/mp4"> -->
+        <!-- <source src="video/big_buck_bunny.ogv" type="video/ogg"> -->
+    <!-- </video> -->
+    <!-- <video loop muted autoplay poster="img/videoframe.jpg" class="fullscreen-bg__video">
+        <source src="crackers.mp4" type="video/mp4">
+    </video> -->
+    <img class="fullscreen-bg__video"
+  src="crackers3.gif" 
+  dynsrc="crackers3.gif"
+  loop=infinite
+  alt="Crackers!!!">
+    </div>
+</div>
+<div class="wish" >
+<p class="wisher" id="from">Our team</p>
+<p><h2>wishes you a very</h2></p>
+<p class="hd">HAPPY DIWALI</p>
+<i><p class="message" id="message">"May millions of lamps illuminate your life<br> with endless joy,prosperity and wealth forever."</p></i>
+<script>
+        if(QueryString.from!=null){
+        document.getElementById("from").innerHTML= QueryString.from;
+        }
+        if (QueryString.message!=null && QueryString.message!="") {
+        document.getElementById("message").innerHTML = "\""+QueryString.message+"\"";
+    }
+</script>
+<!-- <a href="create.html">Create your wish</a> -->
+<!-- <form action="http://0.0.0.0:8000/create.html">
+    <input id="btni" type="submit" value="Create your own" width=200px />
+</form> -->
+<!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script> -->
+<!-- <script type="text/javascript" src="firework.js"></script> -->
+
+</div>
+
+
+
+<!-- =========================================================== -->
+<div class="fform">
+<div class="cform">
+<h3 >Create your Greeting!</h3>
+
+<form id="cyw">
+  <!-- From:<br> -->
+  <input id="from_name" type="text" name="from" placeholder="Your Name" required="">
+  <p id="examples">ex. Rohan Sharma, Gupta Family</p>
+  <!-- To:<br> -->
+  <!-- <input id="to_name" type="text" name="to" placeholder="To" required=""> -->
+  <!-- <br> -->
+  <textarea id="cmessage" placeholder="Type your message (Optional)"></textarea>
+    <br>
+  <script type="text/javascript">
+  var from_name, to_name;
+  function createYourWish() {
+             from_name= document.getElementById("from_name").value;
+             // to_name= document.getElementById("to_name").value;
+       message=document.getElementById("cmessage").value;
+            console.log("message:::: "+message);
+            // document.getElementById("link").innerHTML = "http://0.0.0.0:8000/index.html?from="+ from_name +"&message="+message;
+            // document.getElementById("link").href = "http://0.0.0.0:8000/index.html?from="+ from_name +"&message="+message;
+      document.getElementById("tea").innerHTML = "http://0.0.0.0:8000/index.html?from="+ from_name +"&message="+message;
+        }
+        </script>
+  <input id="btn" type="button" value="Generate Link" onclick="createYourWish()">
+</form>
+</div>
+<!-- <a id="link" class="copytextarea" href="link">link</a> -->
+<div class="copylink">
+<textarea class="ta" id="tea" placeholder="Generate your link, copy and share. Simple!" readonly></textarea>
+<p>
+  <button class="linkcopybutton" id="btn2">Copy Link</button>
+</p>
+</div>
+<script type="text/javascript">
+  var copyTextareaBtn = document.querySelector('.linkcopybutton');
+
+copyTextareaBtn.addEventListener('click', function(event) {
+  var copyTextarea = document.querySelector('.ta');
+  copyTextarea.select();
+
+  try {
+    var successful = document.execCommand('copy');
+    alert(successful);
+  } catch (err) {
+  }
+});
+</script>
+
+
+<!-- <script type="text/javascript">
+  var QueryString = function () {
+  var query_string = {};
+  var query = window.location.search.substring(1);
+  var vars = query.split("&");
+  for (var i=0;i<vars.length;i++) {
+    var pair = vars[i].split("=");
+    if (typeof query_string[pair[0]] === "undefined") {
+      query_string[pair[0]] = decodeURIComponent(pair[1]);
+    } else if (typeof query_string[pair[0]] === "string") {
+      var arr = [ query_string[pair[0]],decodeURIComponent(pair[1]) ];
+      query_string[pair[0]] = arr;
     } else {
       query_string[pair[0]].push(decodeURIComponent(pair[1]));
     }
@@ -113,28 +222,13 @@ console.log(uobj.parameters.to);
   return query_string;
 }();
 console.log(QueryString.from+QueryString.to);
-</script>
-<body>
-<!-- <div class="bgimg"><img id="bckimg" src="https://ksr-ugc.imgix.net/assets/012/671/060/293afe0c15c04444640d6ac4b02a632e_original.png?w=1536&h=864&fit=fill&bg=000000&v=1469089946&auto=format&q=92&s=152a30d5d1160522f085c5e82a86b629" width="100%" ></div> -->
-<div class="fullscreen-bg">
-    <video loop muted autoplay poster="img/videoframe.jpg" class="fullscreen-bg__video">
-        <!-- <source src="video/big_buck_bunny.webm" type="video/webm"> -->
-        <source src="crackers.mp4" type="video/mp4">
-        <!-- <source src="video/big_buck_bunny.ogv" type="video/ogg"> -->
-    </video>
-</div>
-<div class="wish" >
-<p class="wisher" id="from">Abhishek Sachdeva</p>
-<p><h2>wishes you a very</h2></p>
-<p class="hd">Happy Diwali</p>
-<script>
-        document.getElementById("from").innerHTML= QueryString.from;
-</script>
-<a href="create.html">Create your wish</a>
-<!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>  -->
-
-<!-- <script type="text/javascript" src="firework.js"></script> -->
-
-</div>
+</script> -->
+<!-- <div class="diya">
+ <img class="diyaimg" 
+  src="diya.gif" 
+  dynsrc="diya.gif"
+  loop=infinite
+  alt="Crackers!!!">
+  </div> -->
 </body>
 </html>

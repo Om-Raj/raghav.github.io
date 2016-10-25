@@ -1,9 +1,29 @@
+body{
+	background-color: #000000;
+}
 .wisher{
-	font-size: 70px;
+	font-size: 40px;
 	color: #ffffff;
+	margin-bottom: 10px;
+	color: #EF5350;
 }
 .hd{
-	font-size: 60px;
+	font-size: 100px;
+	color: #FFA000;
+}
+
+.message{
+	font-size: 40px;
+	margin-bottom: 150px;
+	margin-top: 100px;
+	color: #4DB6AC;
+}
+#sba{
+	position: absolute;
+	margin-bottom: 3px;
+	margin-right: 3px;
+	right: 0px;
+	bottom: 0px;
 }
 /*.bgimg{
 	padding: 0;
@@ -22,7 +42,7 @@
 }
 .wish{
 	text-align: center;
-	margin-top: 200px;
+	margin-top: 100px;
 	z-index: 1000;
 	color: #ffffff;
 }
@@ -41,7 +61,8 @@
     top: 0;
     left: 0;
     width: 100%;
-    opacity: 1;
+    /*height: 60%;*/
+    opacity: 0.7;
 }
 
 /*#cyw{
@@ -55,18 +76,23 @@
 }*/
 .cform{
 	font-size: 30px;
-	background-color: #ffffff;
+	background-color: #F8BBD0;
 	padding: 20px;
-	border-radius: 7px;
+	opacity: 0.9;
+	/*border-radius: 7px;*/
 }
 
 .fform{
 	z-index: 100;
-	margin-top: 200px;
+	/*margin-top: 45%;*/
 	position: absolute;
-	left: 450px;
+	left: 275px;
 	color: #000000;
+	border-color: #f39c12;
 	display: inline-block;
+	text-align: center;
+	/*margin-bottom: 400px;*/
+	/*opacity: 0.7;*/
 }
 input{
 	font-size: 30px;
@@ -75,16 +101,81 @@ input{
 	margin-bottom: 10px;
 }
 
+textarea{
+	width: 380px;
+	font-size:25px;
+	margin-top: 20px;
+	padding-left: 3px; 
+}
+.copylink{
+	margin-top: 20px;
+	background-color: #F06292;
+	padding: 20px;
+	padding-top: 4px;
+	padding-bottom: 4px;
+	opacity: 0.9;
+	margin-bottom: 10px;
+}
+#examples{
+	font-size: 14px;
+}
+/*#tea{
+	width: 380px;
+}*/
+.diyaimg{
+	 width: 250px;
+    height: 200px;
+    position: relative;
+    margin-top: 100px;
+    bottom: -0px;
+    margin-bottom: 0px;
+}
+/*.diya{
+    position: absolute;
+    text-align: center;
+    left: 130px;
+    top: 700px;
+    background-color: #000000;
+    background-blend-mode: multiply;
+}*/
+
 #btn{
-	color: #ffffff;
+	/*color: #ffffff;*/
 	width: 100%;
-	background-color: #000BBB;
+	/*background-color: #000BBB;*/
 	margin-top: 10px;
 	padding-left: 2px;
 	padding-right: 6px;
 	border-radius: 6px;
 }
-/*#btn {
+#btni{
+	/*color: #ffffff;*/
+	width: 300px;
+	/*background-color: #000BBB;*/
+	margin-top: 10px;
+	margin-bottom: 100px;
+	padding-left: 2px;
+	padding-right: 6px;
+	border-radius: 6px;
+}
+#btn2{
+	margin-top: 10px;
+	margin-bottom: 10px;
+	font-size: 100px;
+	width: 100%;
+/*	position: absolute;
+	text-align: center;
+	left: 50px;
+*/}
+
+
+a{
+	font-size: 30px;
+	color: #ffffff;
+	background-color: #d35400;
+	text-decoration: none;
+}
+#btn,#btni,#btn2 {
 	background:-webkit-gradient(linear, left top, left bottom, color-stop(0.05, #007dc1), color-stop(1, #0061a7));
 	background:-moz-linear-gradient(top, #007dc1 5%, #0061a7 100%);
 	background:-webkit-linear-gradient(top, #007dc1 5%, #0061a7 100%);
@@ -105,7 +196,7 @@ input{
 	padding:8px 76px;
 	text-decoration:none;
 }
-#btn:hover {
+#btn:hover, #btni:hover,#btn2:hover {
 	background:-webkit-gradient(linear, left top, left bottom, color-stop(0.05, #0061a7), color-stop(1, #007dc1));
 	background:-moz-linear-gradient(top, #0061a7 5%, #007dc1 100%);
 	background:-webkit-linear-gradient(top, #0061a7 5%, #007dc1 100%);
@@ -115,8 +206,7 @@ input{
 	filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#0061a7', endColorstr='#007dc1',GradientType=0);
 	background-color:#0061a7;
 }
-#btn:active {
+#btn:active, #btni:active, #btn2:active {
 	position:relative;
 	top:1px;
 }
-*/

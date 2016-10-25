@@ -9,45 +9,60 @@
 <div class="cform">
 <form id="cyw">
   <!-- From:<br> -->
-  <input id="from_name" type="text" name="from" placeholder="From"><br>
+  <input id="from_name" type="text" name="from" placeholder="From" required=""><br>
   <!-- To:<br> -->
-  <input id="to_name" type="text" name="to" placeholder="To">
+  <!-- <input id="to_name" type="text" name="to" placeholder="To" required=""> -->
+  <!-- <br> -->
+  <textarea id="message" placeholder="Type your message"></textarea>
 	<br>
   <script type="text/javascript">
   var from_name, to_name;
   function createYourWish() {
 			 from_name= document.getElementById("from_name").value;
 			 to_name= document.getElementById("to_name").value;
-			// console.log("cyw....from   "+from_name);
+       message=document.getElementById("message").value;
+			console.log("message:::: "+message);
 			document.getElementById("link").innerHTML = "http://0.0.0.0:8000/index.html?from="+ from_name +"&to="+to_name;
 			document.getElementById("link").href = "http://0.0.0.0:8000/index.html?from="+ from_name +"&to="+to_name;			
+      document.getElementById("tea").innerHTML = "http://0.0.0.0:8000/index.html?from="+ from_name +"&to="+to_name+"&message="+message;
 		}
 		</script>
   <input id="btn" type="button" value="Submit" onclick="createYourWish()">
 </form>
 </div>
-<a id="link" href="link"></a>
+<a id="link" class="copytextarea" href="link">link</a>
+<p>
+  <button class="linkcopybutton">Copy Textarea</button>
+</p>
+<textarea class="ta" id="tea" readonly></textarea>
 </div>
-<!-- <script type="text/javascript">
-	console.log(from_name);
-</script> -->
+<script type="text/javascript">
+  var copyTextareaBtn = document.querySelector('.linkcopybutton');
+
+copyTextareaBtn.addEventListener('click', function(event) {
+  var copyTextarea = document.querySelector('.ta');
+  copyTextarea.select();
+
+  try {
+    var successful = document.execCommand('copy');
+  } catch (err) {
+  }
+});
+</script>
+
+
 <script type="text/javascript">
   var QueryString = function () {
-  // This function is anonymous, is executed immediately and 
-  // the return value is assigned to QueryString!
   var query_string = {};
   var query = window.location.search.substring(1);
   var vars = query.split("&");
   for (var i=0;i<vars.length;i++) {
     var pair = vars[i].split("=");
-        // If first entry with this name
     if (typeof query_string[pair[0]] === "undefined") {
       query_string[pair[0]] = decodeURIComponent(pair[1]);
-        // If second entry with this name
     } else if (typeof query_string[pair[0]] === "string") {
       var arr = [ query_string[pair[0]],decodeURIComponent(pair[1]) ];
       query_string[pair[0]] = arr;
-        // If third or later entry with this name
     } else {
       query_string[pair[0]].push(decodeURIComponent(pair[1]));
     }
@@ -56,10 +71,15 @@
 }();
 console.log(QueryString.from+QueryString.to);
 </script>
-<!-- <div class="fullscreen-bg">
-    <video loop muted autoplay poster="img/videoframe.jpg" class="fullscreen-bg__video">
+<div class="fullscreen-bg">
+    <!-- <video loop muted autoplay poster="img/videoframe.jpg" class="fullscreen-bg__video">
         <source src="crackers.mp4" type="video/mp4">
-    </video>
-    </div> -->
+    </video> -->
+    <img class="fullscreen-bg__video"
+  src="crackers.gif" 
+  dynsrc="crackers.gif"
+  loop=infinite
+  alt="Crackers!!!">
+    </div>
 </body>
 </html>
