@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Happy Diwali</title>
+  <link rel="stylesheet" href="HappyDiwali.css">
+</head>
+<!-- Extra details -->
+<!-- <script type="text/javascript">
+	function urlObject(options) {
+    "use strict";
+    /*global window, document*/
+
+    var url_search_arr,
+        option_key,
+        i,
+        urlObj,
+        get_param,
+        key,
+        val,
+        url_query,
+        url_get_params = {},
+        a = document.createElement('a'),
+        default_options = {
+            'url': window.location.href,
+            'unescape': true,
+            'convert_num': true
+        };
+
+    if (typeof options !== "object") {
+        options = default_options;
+    } else {
+        for (option_key in default_options) {
+            if (default_options.hasOwnProperty(option_key)) {
+                if (options[option_key] === undefined) {
+                    options[option_key] = default_options[option_key];
+                }
+            }
+        }
+    }
+
+    a.href = options.url;
+    url_query = a.search.substring(1);
+    url_search_arr = url_query.split('&');
+
+    if (url_search_arr[0].length > 1) {
+        for (i = 0; i < url_search_arr.length; i += 1) {
+            get_param = url_search_arr[i].split("=");
+
+            if (options.unescape) {
+                key = decodeURI(get_param[0]);
+                val = decodeURI(get_param[1]);
+            } else {
+                key = get_param[0];
+                val = get_param[1];
+            }
+
+            if (options.convert_num) {
+                if (val.match(/^\d+$/)) {
+                    val = parseInt(val, 10);
+                } else if (val.match(/^\d+\.\d+$/)) {
+                    val = parseFloat(val);
+                }
+            }
+
+            if (url_get_params[key] === undefined) {
+                url_get_params[key] = val;
+            } else if (typeof url_get_params[key] === "string") {
+                url_get_params[key] = [url_get_params[key], val];
+            } else {
+                url_get_params[key].push(val);
+            }
+
+            get_param = [];
+        }
+    }
+
+    urlObj = {
+        protocol: a.protocol,
+        hostname: a.hostname,
+        host: a.host,
+        port: a.port,
+        hash: a.hash.substr(1),
+        pathname: a.pathname,
+        search: a.search,
+        parameters: url_get_params
+    };
+    return urlObj;
+}
+var uobj = new urlObject({'url':window.location.href });
+console.log(uobj.parameters.to);
+</script> -->
+<script type="text/javascript">
+  var QueryString = function () {
+  // This function is anonymous, is executed immediately and 
+  // the return value is assigned to QueryString!
+  var query_string = {};
+  var query = window.location.search.substring(1);
+  var vars = query.split("&");
+  for (var i=0;i<vars.length;i++) {
+    var pair = vars[i].split("=");
+        // If first entry with this name
+    if (typeof query_string[pair[0]] === "undefined") {
+      query_string[pair[0]] = decodeURIComponent(pair[1]);
+        // If second entry with this name
+    } else if (typeof query_string[pair[0]] === "string") {
+      var arr = [ query_string[pair[0]],decodeURIComponent(pair[1]) ];
+      query_string[pair[0]] = arr;
+        // If third or later entry with this name
+    } else {
+      query_string[pair[0]].push(decodeURIComponent(pair[1]));
+    }
+  } 
+  return query_string;
+}();
+console.log(QueryString.from+QueryString.to);
+</script>
+<body>
+<!-- <div class="bgimg"><img id="bckimg" src="https://ksr-ugc.imgix.net/assets/012/671/060/293afe0c15c04444640d6ac4b02a632e_original.png?w=1536&h=864&fit=fill&bg=000000&v=1469089946&auto=format&q=92&s=152a30d5d1160522f085c5e82a86b629" width="100%" ></div> -->
+<div class="fullscreen-bg">
+    <video loop muted autoplay poster="img/videoframe.jpg" class="fullscreen-bg__video">
+        <!-- <source src="video/big_buck_bunny.webm" type="video/webm"> -->
+        <source src="crackers.mp4" type="video/mp4">
+        <!-- <source src="video/big_buck_bunny.ogv" type="video/ogg"> -->
+    </video>
+</div>
+<div class="wish" >
+<p class="wisher" id="from">Abhishek Sachdeva</p>
+<p><h2>wishes you a very</h2></p>
+<p class="hd">Happy Diwali</p>
+<script>
+        document.getElementById("from").innerHTML= QueryString.from;
+</script>
+<a href="create.html">Create your wish</a>
+<!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>  -->
+
+<!-- <script type="text/javascript" src="firework.js"></script> -->
+
+</div>
+</body>
+</html>
