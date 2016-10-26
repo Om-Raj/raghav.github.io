@@ -28,307 +28,49 @@
 }();
 </script>
 <body>
-<canvas id="canvas">Canvas is not supported in your browser.</canvas>
+<div class="imgtext">
 <img id="sba" align=right src="http://janadesar.wirenode.mobi/img/M/R/media/1381110/r/img/ighxihms5pz.jpg.jpg">
+<p><b>Keep your city clean</b></p></div>
+<div class="safediwali">
+<img id="sd" align=right src="green.jpg">
+<p><b>Green and safe Diwali</b></p></div>
 
 
+<img id="diya" 
+  src="diya.gif" 
+  dynsrc="diya.gif"
+  loop=infinite
+  alt="Diya">
+<img id="diya2" 
+  src="diya.gif" 
+  dynsrc="diya.gif"
+  loop=infinite
+  alt="Diya">
 
-
-
-
-
+<div class="diwaliad">
 <script type="text/javascript">
-    window.requestAnimFrame = ( function() {
-    return window.requestAnimationFrame ||
-                window.webkitRequestAnimationFrame ||
-                window.mozRequestAnimationFrame ||
-                function( callback ) {
-                    window.setTimeout( callback, 1000 / 60 );
-                };
-})();
-
-// now we will setup our basic variables for the demo
-var canvas = document.getElementById( 'canvas' ),
-        ctx = canvas.getContext( '2d' ),
-        // full screen dimensions
-        cw = window.innerWidth,
-        ch = window.innerHeight,
-        // firework collection
-        fireworks = [],
-        // particle collection
-        particles = [],
-        // starting hue
-        hue = 120,
-        // when launching fireworks with a click, too many get launched at once without a limiter, one launch per 5 loop ticks
-        limiterTotal = 5,
-        limiterTick = 0,
-        // this will time the auto launches of fireworks, one launch per 80 loop ticks
-        timerTotal = 80,
-        timerTick = 0,
-        mousedown = false,
-        // mouse x coordinate,
-        mx,
-        // mouse y coordinate
-        my;
-        
-// set canvas dimensions
-canvas.width = cw;
-canvas.height = ch;
-
-// now we are going to setup our function placeholders for the entire demo
-
-// get a random number within a range
-function random( min, max ) {
-    return Math.random() * ( max - min ) + min;
-}
-
-// calculate the distance between two points
-function calculateDistance( p1x, p1y, p2x, p2y ) {
-    var xDistance = p1x - p2x,
-            yDistance = p1y - p2y;
-    return Math.sqrt( Math.pow( xDistance, 2 ) + Math.pow( yDistance, 2 ) );
-}
-
-// create firework
-function Firework( sx, sy, tx, ty ) {
-    // actual coordinates
-    this.x = sx;
-    this.y = sy;
-    // starting coordinates
-    this.sx = sx;
-    this.sy = sy;
-    // target coordinates
-    this.tx = tx;
-    this.ty = ty;
-    // distance from starting point to target
-    this.distanceToTarget = calculateDistance( sx, sy, tx, ty );
-    this.distanceTraveled = 0;
-    // track the past coordinates of each firework to create a trail effect, increase the coordinate count to create more prominent trails
-    this.coordinates = [];
-    this.coordinateCount = 3;
-    // populate initial coordinate collection with the current coordinates
-    while( this.coordinateCount-- ) {
-        this.coordinates.push( [ this.x, this.y ] );
-    }
-    this.angle = Math.atan2( ty - sy, tx - sx );
-    this.speed = 2;
-    this.acceleration = 1.05;
-    this.brightness = random( 50, 70 );
-    // circle target indicator radius
-    this.targetRadius = 1;
-}
-
-// update firework
-Firework.prototype.update = function( index ) {
-    // remove last item in coordinates array
-    this.coordinates.pop();
-    // add current coordinates to the start of the array
-    this.coordinates.unshift( [ this.x, this.y ] );
-    
-    // cycle the circle target indicator radius
-    if( this.targetRadius < 8 ) {
-        this.targetRadius += 0.3;
-    } else {
-        this.targetRadius = 1;
-    }
-    
-    // speed up the firework
-    this.speed *= this.acceleration;
-    
-    // get the current velocities based on angle and speed
-    var vx = Math.cos( this.angle ) * this.speed,
-            vy = Math.sin( this.angle ) * this.speed;
-    // how far will the firework have traveled with velocities applied?
-    this.distanceTraveled = calculateDistance( this.sx, this.sy, this.x + vx, this.y + vy );
-    
-    // if the distance traveled, including velocities, is greater than the initial distance to the target, then the target has been reached
-    if( this.distanceTraveled >= this.distanceToTarget ) {
-        createParticles( this.tx, this.ty );
-        // remove the firework, use the index passed into the update function to determine which to remove
-        fireworks.splice( index, 1 );
-    } else {
-        // target not reached, keep traveling
-        this.x += vx;
-        this.y += vy;
-    }
-}
-
-// draw firework
-Firework.prototype.draw = function() {
-    ctx.beginPath();
-    // move to the last tracked coordinate in the set, then draw a line to the current x and y
-    ctx.moveTo( this.coordinates[ this.coordinates.length - 1][ 0 ], this.coordinates[ this.coordinates.length - 1][ 1 ] );
-    ctx.lineTo( this.x, this.y );
-    ctx.strokeStyle = 'hsl(' + hue + ', 100%, ' + this.brightness + '%)';
-    ctx.stroke();
-    
-    ctx.beginPath();
-    // draw the target for this firework with a pulsing circle
-    ctx.arc( this.tx, this.ty, this.targetRadius, 0, Math.PI * 2 );
-    ctx.stroke();
-}
-
-// create particle
-function Particle( x, y ) {
-    this.x = x;
-    this.y = y;
-    // track the past coordinates of each particle to create a trail effect, increase the coordinate count to create more prominent trails
-    this.coordinates = [];
-    this.coordinateCount = 5;
-    while( this.coordinateCount-- ) {
-        this.coordinates.push( [ this.x, this.y ] );
-    }
-    // set a random angle in all possible directions, in radians
-    this.angle = random( 0, Math.PI * 2 );
-    this.speed = random( 1, 10 );
-    // friction will slow the particle down
-    this.friction = 0.95;
-    // gravity will be applied and pull the particle down
-    this.gravity = 1;
-    // set the hue to a random number +-20 of the overall hue variable
-    this.hue = random( hue - 20, hue + 20 );
-    this.brightness = random( 50, 80 );
-    this.alpha = 1;
-    // set how fast the particle fades out
-    this.decay = random( 0.015, 0.03 );
-}
-
-// update particle
-Particle.prototype.update = function( index ) {
-    // remove last item in coordinates array
-    this.coordinates.pop();
-    // add current coordinates to the start of the array
-    this.coordinates.unshift( [ this.x, this.y ] );
-    // slow down the particle
-    this.speed *= this.friction;
-    // apply velocity
-    this.x += Math.cos( this.angle ) * this.speed;
-    this.y += Math.sin( this.angle ) * this.speed + this.gravity;
-    // fade out the particle
-    this.alpha -= this.decay;
-    
-    // remove the particle once the alpha is low enough, based on the passed in index
-    if( this.alpha <= this.decay ) {
-        particles.splice( index, 1 );
-    }
-}
-
-// draw particle
-Particle.prototype.draw = function() {
-    ctx. beginPath();
-    // move to the last tracked coordinates in the set, then draw a line to the current x and y
-    ctx.moveTo( this.coordinates[ this.coordinates.length - 1 ][ 0 ], this.coordinates[ this.coordinates.length - 1 ][ 1 ] );
-    ctx.lineTo( this.x, this.y );
-    ctx.strokeStyle = 'hsla(' + this.hue + ', 100%, ' + this.brightness + '%, ' + this.alpha + ')';
-    ctx.stroke();
-}
-
-// create particle group/explosion
-function createParticles( x, y ) {
-    // increase the particle count for a bigger explosion, beware of the canvas performance hit with the increased particles though
-    var particleCount = 30;
-    while( particleCount-- ) {
-        particles.push( new Particle( x, y ) );
-    }
-}
-
-// main demo loop
-function loop() {
-    // this function will run endlessly with requestAnimationFrame
-    requestAnimFrame( loop );
-    
-    // increase the hue to get different colored fireworks over time
-    hue += 0.5;
-    
-    // normally, clearRect() would be used to clear the canvas
-    // we want to create a trailing effect though
-    // setting the composite operation to destination-out will allow us to clear the canvas at a specific opacity, rather than wiping it entirely
-    ctx.globalCompositeOperation = 'destination-out';
-    // decrease the alpha property to create more prominent trails
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
-    ctx.fillRect( 0, 0, cw, ch );
-    // change the composite operation back to our main mode
-    // lighter creates bright highlight points as the fireworks and particles overlap each other
-    ctx.globalCompositeOperation = 'lighter';
-    
-    // loop over each firework, draw it, update it
-    var i = fireworks.length;
-    while( i-- ) {
-        fireworks[ i ].draw();
-        fireworks[ i ].update( i );
-    }
-    
-    // loop over each particle, draw it, update it
-    var i = particles.length;
-    while( i-- ) {
-        particles[ i ].draw();
-        particles[ i ].update( i );
-    }
-    
-    // launch fireworks automatically to random coordinates, when the mouse isn't down
-    if( timerTick >= timerTotal ) {
-        if( !mousedown ) {
-            // start the firework at the bottom middle of the screen, then set the random target coordinates, the random y coordinates will be set within the range of the top half of the screen
-            fireworks.push( new Firework( cw / 2, ch, random( 0, cw ), random( 0, ch / 2 ) ) );
-            timerTick = 0;
-        }
-    } else {
-        timerTick++;
-    }
-    
-    // limit the rate at which fireworks get launched when mouse is down
-    if( limiterTick >= limiterTotal ) {
-        if( mousedown ) {
-            // start the firework at the bottom middle of the screen, then set the current mouse coordinates as the target
-            fireworks.push( new Firework( cw / 2, ch, mx, my ) );
-            limiterTick = 0;
-        }
-    } else {
-        limiterTick++;
-    }
-}
-
-// mouse event bindings
-// update the mouse coordinates on mousemove
-canvas.addEventListener( 'mousemove', function( e ) {
-    mx = e.pageX - canvas.offsetLeft;
-    my = e.pageY - canvas.offsetTop;
-});
-
-// toggle mousedown state and prevent canvas from being selected
-canvas.addEventListener( 'mousedown', function( e ) {
-    e.preventDefault();
-    mousedown = true;
-});
-
-canvas.addEventListener( 'mouseup', function( e ) {
-    e.preventDefault();
-    mousedown = false;
-});
-
-// once the window loads, we are ready for some fireworks!
-window.onload = loop;
-
-
-
+sa_client = "8eeff7ab36e185152deaf40f67273405";
+sa_code = "4c1b6f45a9698fb10af5df9e7551db4d";
+sa_protocol = ("https:"==document.location.protocol)?"https":"http";
+sa_pline = "0";
+sa_maxads = "4";
+sa_bgcolor = "FFFFFF";
+sa_bordercolor = "BDD631";
+sa_superbordercolor = "BDD631";
+sa_linkcolor = "001EB5";
+sa_desccolor = "000000";
+sa_urlcolor = "788300";
+sa_b = "1";
+sa_format = "banner_728x90_4";
+sa_width = "728";
+sa_height = "90";
+sa_location = "0";
+sa_radius = "0";
+sa_borderwidth = "1";
+sa_font = "0";
+document.write(unescape("%3cscript type='text/javascript' src='"+sa_protocol+"://sa.entireweb.com/sense2.js'%3e%3c/script%3e"));
 </script>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+</div>
 <div class="fullscreen-bg" id="ff">
     <!-- <video loop muted autoplay poster="img/videoframe.jpg" class="fullscreen-bg__video"> -->
         <!-- <source src="video/big_buck_bunny.webm" type="video/webm"> -->
@@ -346,11 +88,17 @@ window.onload = loop;
   <img src="crackers.jpg" class="fullscreen-bg__video">
     </div>
 <!-- </div> -->
+
 <div class="wish" >
 <p class="wisher" id="from">Our team</p>
 <p><h2>wishes you a very</h2></p>
 <p class="hd">HAPPY DIWALI</p>
-<i><p class="message" id="message">"May millions of lamps illuminate your life<br> with endless joy,prosperity and wealth forever."</p></i>
+  <img class="hdt" 
+  src="hdt.gif" 
+  dynsrc="hdt.gif"
+  loop=infinite
+  alt="Crackers!!!">
+<i><p class="message" id="message">"May millions of lamps illuminate your life<br> with endless joy, prosperity and wealth forever."</p></i>
 <script>
         if(QueryString.from!=null){
         document.getElementById("from").innerHTML= atob(QueryString.from);
@@ -379,7 +127,32 @@ window.onload = loop;
 
 
 <!-- =========================================================== -->
+
 <div class="fform" id="fullform">
+<script type="text/javascript">
+sa_client = "8eeff7ab36e185152deaf40f67273405";
+sa_code = "6f1b952b32bde515d77b7d198dd6802c";
+sa_protocol = ("https:"==document.location.protocol)?"https":"http";
+sa_pline = "0";
+sa_maxads = "2";
+sa_bgcolor = "FFFFFF";
+sa_bordercolor = "BDD631";
+sa_superbordercolor = "BDD631";
+sa_linkcolor = "001EB5";
+sa_desccolor = "000000";
+sa_urlcolor = "788300";
+sa_b = "1";
+sa_format = "banner_468x60";
+sa_width = "468";
+sa_height = "60";
+sa_location = "0";
+sa_radius = "0";
+sa_borderwidth = "1";
+sa_font = "0";
+document.write(unescape("%3cscript type='text/javascript' src='"+sa_protocol+"://sa.entireweb.com/sense2.js'%3e%3c/script%3e"));
+</script>
+
+
 <div class="cform">
 <h3 >Create your Greeting!</h3>
 
@@ -410,6 +183,29 @@ window.onload = loop;
         document.querySelector('.fform').style.display="block";
     }
 </script> -->
+<script type="text/javascript">
+sa_client = "8eeff7ab36e185152deaf40f67273405";
+sa_code = "6f1b952b32bde515d77b7d198dd6802c";
+sa_protocol = ("https:"==document.location.protocol)?"https":"http";
+sa_pline = "0";
+sa_maxads = "2";
+sa_bgcolor = "FFFFFF";
+sa_bordercolor = "BDD631";
+sa_superbordercolor = "BDD631";
+sa_linkcolor = "001EB5";
+sa_desccolor = "000000";
+sa_urlcolor = "788300";
+sa_b = "1";
+sa_format = "banner_468x60";
+sa_width = "468";
+sa_height = "60";
+sa_location = "0";
+sa_radius = "0";
+sa_borderwidth = "1";
+sa_font = "0";
+document.write(unescape("%3cscript type='text/javascript' src='"+sa_protocol+"://sa.entireweb.com/sense2.js'%3e%3c/script%3e"));
+</script>
+
 <div class="copylink">
 <textarea class="ta" id="tea" placeholder="Generate your link, copy and share. Simple!" readonly></textarea>
 <p>
@@ -443,6 +239,31 @@ copyTextareaBtn.addEventListener('click', function(event) {
 
          <a id="fbshare" href="http://www.facebook.com/sharer/sharer.php?u= http://happydiwali.gq" target="_blank"><img id="fbicon" src="data:image/svg+xml;utf8;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iaXNvLTg4NTktMSI/Pgo8IS0tIEdlbmVyYXRvcjogQWRvYmUgSWxsdXN0cmF0b3IgMTkuMC4wLCBTVkcgRXhwb3J0IFBsdWctSW4gLiBTVkcgVmVyc2lvbjogNi4wMCBCdWlsZCAwKSAgLS0+CjxzdmcgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWxuczp4bGluaz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS94bGluayIgdmVyc2lvbj0iMS4xIiBpZD0iTGF5ZXJfMSIgeD0iMHB4IiB5PSIwcHgiIHZpZXdCb3g9IjAgMCA1MTIgNTEyIiBzdHlsZT0iZW5hYmxlLWJhY2tncm91bmQ6bmV3IDAgMCA1MTIgNTEyOyIgeG1sOnNwYWNlPSJwcmVzZXJ2ZSIgd2lkdGg9IjUxMnB4IiBoZWlnaHQ9IjUxMnB4Ij4KPHBhdGggc3R5bGU9ImZpbGw6IzRENkZBOTsiIGQ9Ik00NzYuNjksNTEySDM1LjMxQzE1Ljg5LDUxMiwwLDQ5Ni4xMSwwLDQ3Ni42OVYzNS4zMUMwLDE1Ljg5LDE1Ljg5LDAsMzUuMzEsMEg0NzYuNjkgIEM0OTYuMTEsMCw1MTIsMTUuODksNTEyLDM1LjMxVjQ3Ni42OUM1MTIsNDk2LjExLDQ5Ni4xMSw1MTIsNDc2LjY5LDUxMiIvPgo8cGF0aCBzdHlsZT0iZmlsbDojRkZGRkZGOyIgZD0iTTQzMi41NTIsODguMjc2djg4LjI3NmgtNzkuNDQ4Yy05LjcxLDAtMTcuNjU1LDcuOTQ1LTE3LjY1NSwxNy42NTV2NTIuOTY2aDg4LjI3NnY4OC4yNzZoLTg4LjI3NiAgVjUxMmgtODguMjc2VjMzNS40NDhoLTcwLjYyMXYtODguMjc2aDcwLjYyMXYtNTIuOTY2YzAtNTUuNjE0LDQyLjM3Mi0xMDEuNTE3LDk3LjEwMy0xMDUuOTMxSDQzMi41NTJ6Ii8+CjxnPgo8L2c+CjxnPgo8L2c+CjxnPgo8L2c+CjxnPgo8L2c+CjxnPgo8L2c+CjxnPgo8L2c+CjxnPgo8L2c+CjxnPgo8L2c+CjxnPgo8L2c+CjxnPgo8L2c+CjxnPgo8L2c+CjxnPgo8L2c+CjxnPgo8L2c+CjxnPgo8L2c+CjxnPgo8L2c+Cjwvc3ZnPgo=" /> </a>
 
-<div align=left><img src='http://www.counter12.com/img-w8Zz9AW3-26.gif' border='0' alt='counter'></a><script type='text/javascript' src='http://www.counter12.com/ad.js?id=w8Zz9AW3'></script></div>
+<div class="counter" align="left"><img src='http://www.counter12.com/img-DZ2Zx4cZ-26.gif' border='0' alt='free counter'></a><script type='text/javascript' src='http://www.counter12.com/ad.js?id=DZ2Zx4cZ'></script>&nbsp;People created inviation.</div>
+<script type="text/javascript">
+sa_client = "8eeff7ab36e185152deaf40f67273405";
+sa_code = "6f1b952b32bde515d77b7d198dd6802c";
+sa_protocol = ("https:"==document.location.protocol)?"https":"http";
+sa_pline = "0";
+sa_maxads = "2";
+sa_bgcolor = "FFFFFF";
+sa_bordercolor = "BDD631";
+sa_superbordercolor = "BDD631";
+sa_linkcolor = "001EB5";
+sa_desccolor = "000000";
+sa_urlcolor = "788300";
+sa_b = "1";
+sa_format = "banner_468x60";
+sa_width = "468";
+sa_height = "60";
+sa_location = "0";
+sa_radius = "0";
+sa_borderwidth = "1";
+sa_font = "0";
+document.write(unescape("%3cscript type='text/javascript' src='"+sa_protocol+"://sa.entireweb.com/sense2.js'%3e%3c/script%3e"));
+</script>
+
+</div>
+
 </body>
 </html>
