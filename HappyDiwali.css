@@ -191,8 +191,11 @@ canvas {
 a{
 	font-size: 30px;
 	color: #ffffff;
-	background-color: #d35400;
 	text-decoration: none;
+}
+#fbicon{
+	height: 30px;
+	width: 75px;
 }
 #btn,#btni,#btn2 {
 	background:-webkit-gradient(linear, left top, left bottom, color-stop(0.05, #007dc1), color-stop(1, #0061a7));
