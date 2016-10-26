@@ -4,91 +4,8 @@
 	<title>Happy Diwali</title>
   <link rel="stylesheet" href="HappyDiwali.css">
 </head>
-<!-- Extra details -->
-<!-- <script type="text/javascript">
-	function urlObject(options) {
-    "use strict";
-    /*global window, document*/
-
-    var url_search_arr,
-        option_key,
-        i,
-        urlObj,
-        get_param,
-        key,
-        val,
-        url_query,
-        url_get_params = {},
-        a = document.createElement('a'),
-        default_options = {
-            'url': window.location.href,
-            'unescape': true,
-            'convert_num': true
-        };
-
-    if (typeof options !== "object") {
-        options = default_options;
-    } else {
-        for (option_key in default_options) {
-            if (default_options.hasOwnProperty(option_key)) {
-                if (options[option_key] === undefined) {
-                    options[option_key] = default_options[option_key];
-                }
-            }
-        }
-    }
-
-    a.href = options.url;
-    url_query = a.search.substring(1);
-    url_search_arr = url_query.split('&');
-
-    if (url_search_arr[0].length > 1) {
-        for (i = 0; i < url_search_arr.length; i += 1) {
-            get_param = url_search_arr[i].split("=");
-
-            if (options.unescape) {
-                key = decodeURI(get_param[0]);
-                val = decodeURI(get_param[1]);
-            } else {
-                key = get_param[0];
-                val = get_param[1];
-            }
-
-            if (options.convert_num) {
-                if (val.match(/^\d+$/)) {
-                    val = parseInt(val, 10);
-                } else if (val.match(/^\d+\.\d+$/)) {
-                    val = parseFloat(val);
-                }
-            }
-
-            if (url_get_params[key] === undefined) {
-                url_get_params[key] = val;
-            } else if (typeof url_get_params[key] === "string") {
-                url_get_params[key] = [url_get_params[key], val];
-            } else {
-                url_get_params[key].push(val);
-            }
-
-            get_param = [];
-        }
-    }
-
-    urlObj = {
-        protocol: a.protocol,
-        hostname: a.hostname,
-        host: a.host,
-        port: a.port,
-        hash: a.hash.substr(1),
-        pathname: a.pathname,
-        search: a.search,
-        parameters: url_get_params
-    };
-    return urlObj;
-}
-var uobj = new urlObject({'url':window.location.href });
-console.log(uobj.parameters.to);
-</script> -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+<!-- <script type="text/javascript" src="firework.js"></script> -->
 <script type="text/javascript">
   var QueryString = function () {
   var query_string = {};
@@ -107,26 +24,326 @@ console.log(uobj.parameters.to);
   } 
   return query_string;
 }();
-// console.log(QueryString.from+QueryString.to+"........"+message);
 </script>
 <body>
-<img id="sba" src="http://janadesar.wirenode.mobi/img/M/R/media/1381110/r/img/ighxihms5pz.jpg.jpg">
-<div class="fullscreen-bg">
+<canvas id="canvas">Canvas is not supported in your browser.</canvas>
+<img id="sba" align=right src="http://janadesar.wirenode.mobi/img/M/R/media/1381110/r/img/ighxihms5pz.jpg.jpg">
+
+
+
+
+
+
+
+<script type="text/javascript">
+    window.requestAnimFrame = ( function() {
+    return window.requestAnimationFrame ||
+                window.webkitRequestAnimationFrame ||
+                window.mozRequestAnimationFrame ||
+                function( callback ) {
+                    window.setTimeout( callback, 1000 / 60 );
+                };
+})();
+
+// now we will setup our basic variables for the demo
+var canvas = document.getElementById( 'canvas' ),
+        ctx = canvas.getContext( '2d' ),
+        // full screen dimensions
+        cw = window.innerWidth,
+        ch = window.innerHeight,
+        // firework collection
+        fireworks = [],
+        // particle collection
+        particles = [],
+        // starting hue
+        hue = 120,
+        // when launching fireworks with a click, too many get launched at once without a limiter, one launch per 5 loop ticks
+        limiterTotal = 5,
+        limiterTick = 0,
+        // this will time the auto launches of fireworks, one launch per 80 loop ticks
+        timerTotal = 80,
+        timerTick = 0,
+        mousedown = false,
+        // mouse x coordinate,
+        mx,
+        // mouse y coordinate
+        my;
+        
+// set canvas dimensions
+canvas.width = cw;
+canvas.height = ch;
+
+// now we are going to setup our function placeholders for the entire demo
+
+// get a random number within a range
+function random( min, max ) {
+    return Math.random() * ( max - min ) + min;
+}
+
+// calculate the distance between two points
+function calculateDistance( p1x, p1y, p2x, p2y ) {
+    var xDistance = p1x - p2x,
+            yDistance = p1y - p2y;
+    return Math.sqrt( Math.pow( xDistance, 2 ) + Math.pow( yDistance, 2 ) );
+}
+
+// create firework
+function Firework( sx, sy, tx, ty ) {
+    // actual coordinates
+    this.x = sx;
+    this.y = sy;
+    // starting coordinates
+    this.sx = sx;
+    this.sy = sy;
+    // target coordinates
+    this.tx = tx;
+    this.ty = ty;
+    // distance from starting point to target
+    this.distanceToTarget = calculateDistance( sx, sy, tx, ty );
+    this.distanceTraveled = 0;
+    // track the past coordinates of each firework to create a trail effect, increase the coordinate count to create more prominent trails
+    this.coordinates = [];
+    this.coordinateCount = 3;
+    // populate initial coordinate collection with the current coordinates
+    while( this.coordinateCount-- ) {
+        this.coordinates.push( [ this.x, this.y ] );
+    }
+    this.angle = Math.atan2( ty - sy, tx - sx );
+    this.speed = 2;
+    this.acceleration = 1.05;
+    this.brightness = random( 50, 70 );
+    // circle target indicator radius
+    this.targetRadius = 1;
+}
+
+// update firework
+Firework.prototype.update = function( index ) {
+    // remove last item in coordinates array
+    this.coordinates.pop();
+    // add current coordinates to the start of the array
+    this.coordinates.unshift( [ this.x, this.y ] );
+    
+    // cycle the circle target indicator radius
+    if( this.targetRadius < 8 ) {
+        this.targetRadius += 0.3;
+    } else {
+        this.targetRadius = 1;
+    }
+    
+    // speed up the firework
+    this.speed *= this.acceleration;
+    
+    // get the current velocities based on angle and speed
+    var vx = Math.cos( this.angle ) * this.speed,
+            vy = Math.sin( this.angle ) * this.speed;
+    // how far will the firework have traveled with velocities applied?
+    this.distanceTraveled = calculateDistance( this.sx, this.sy, this.x + vx, this.y + vy );
+    
+    // if the distance traveled, including velocities, is greater than the initial distance to the target, then the target has been reached
+    if( this.distanceTraveled >= this.distanceToTarget ) {
+        createParticles( this.tx, this.ty );
+        // remove the firework, use the index passed into the update function to determine which to remove
+        fireworks.splice( index, 1 );
+    } else {
+        // target not reached, keep traveling
+        this.x += vx;
+        this.y += vy;
+    }
+}
+
+// draw firework
+Firework.prototype.draw = function() {
+    ctx.beginPath();
+    // move to the last tracked coordinate in the set, then draw a line to the current x and y
+    ctx.moveTo( this.coordinates[ this.coordinates.length - 1][ 0 ], this.coordinates[ this.coordinates.length - 1][ 1 ] );
+    ctx.lineTo( this.x, this.y );
+    ctx.strokeStyle = 'hsl(' + hue + ', 100%, ' + this.brightness + '%)';
+    ctx.stroke();
+    
+    ctx.beginPath();
+    // draw the target for this firework with a pulsing circle
+    ctx.arc( this.tx, this.ty, this.targetRadius, 0, Math.PI * 2 );
+    ctx.stroke();
+}
+
+// create particle
+function Particle( x, y ) {
+    this.x = x;
+    this.y = y;
+    // track the past coordinates of each particle to create a trail effect, increase the coordinate count to create more prominent trails
+    this.coordinates = [];
+    this.coordinateCount = 5;
+    while( this.coordinateCount-- ) {
+        this.coordinates.push( [ this.x, this.y ] );
+    }
+    // set a random angle in all possible directions, in radians
+    this.angle = random( 0, Math.PI * 2 );
+    this.speed = random( 1, 10 );
+    // friction will slow the particle down
+    this.friction = 0.95;
+    // gravity will be applied and pull the particle down
+    this.gravity = 1;
+    // set the hue to a random number +-20 of the overall hue variable
+    this.hue = random( hue - 20, hue + 20 );
+    this.brightness = random( 50, 80 );
+    this.alpha = 1;
+    // set how fast the particle fades out
+    this.decay = random( 0.015, 0.03 );
+}
+
+// update particle
+Particle.prototype.update = function( index ) {
+    // remove last item in coordinates array
+    this.coordinates.pop();
+    // add current coordinates to the start of the array
+    this.coordinates.unshift( [ this.x, this.y ] );
+    // slow down the particle
+    this.speed *= this.friction;
+    // apply velocity
+    this.x += Math.cos( this.angle ) * this.speed;
+    this.y += Math.sin( this.angle ) * this.speed + this.gravity;
+    // fade out the particle
+    this.alpha -= this.decay;
+    
+    // remove the particle once the alpha is low enough, based on the passed in index
+    if( this.alpha <= this.decay ) {
+        particles.splice( index, 1 );
+    }
+}
+
+// draw particle
+Particle.prototype.draw = function() {
+    ctx. beginPath();
+    // move to the last tracked coordinates in the set, then draw a line to the current x and y
+    ctx.moveTo( this.coordinates[ this.coordinates.length - 1 ][ 0 ], this.coordinates[ this.coordinates.length - 1 ][ 1 ] );
+    ctx.lineTo( this.x, this.y );
+    ctx.strokeStyle = 'hsla(' + this.hue + ', 100%, ' + this.brightness + '%, ' + this.alpha + ')';
+    ctx.stroke();
+}
+
+// create particle group/explosion
+function createParticles( x, y ) {
+    // increase the particle count for a bigger explosion, beware of the canvas performance hit with the increased particles though
+    var particleCount = 30;
+    while( particleCount-- ) {
+        particles.push( new Particle( x, y ) );
+    }
+}
+
+// main demo loop
+function loop() {
+    // this function will run endlessly with requestAnimationFrame
+    requestAnimFrame( loop );
+    
+    // increase the hue to get different colored fireworks over time
+    hue += 0.5;
+    
+    // normally, clearRect() would be used to clear the canvas
+    // we want to create a trailing effect though
+    // setting the composite operation to destination-out will allow us to clear the canvas at a specific opacity, rather than wiping it entirely
+    ctx.globalCompositeOperation = 'destination-out';
+    // decrease the alpha property to create more prominent trails
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
+    ctx.fillRect( 0, 0, cw, ch );
+    // change the composite operation back to our main mode
+    // lighter creates bright highlight points as the fireworks and particles overlap each other
+    ctx.globalCompositeOperation = 'lighter';
+    
+    // loop over each firework, draw it, update it
+    var i = fireworks.length;
+    while( i-- ) {
+        fireworks[ i ].draw();
+        fireworks[ i ].update( i );
+    }
+    
+    // loop over each particle, draw it, update it
+    var i = particles.length;
+    while( i-- ) {
+        particles[ i ].draw();
+        particles[ i ].update( i );
+    }
+    
+    // launch fireworks automatically to random coordinates, when the mouse isn't down
+    if( timerTick >= timerTotal ) {
+        if( !mousedown ) {
+            // start the firework at the bottom middle of the screen, then set the random target coordinates, the random y coordinates will be set within the range of the top half of the screen
+            fireworks.push( new Firework( cw / 2, ch, random( 0, cw ), random( 0, ch / 2 ) ) );
+            timerTick = 0;
+        }
+    } else {
+        timerTick++;
+    }
+    
+    // limit the rate at which fireworks get launched when mouse is down
+    if( limiterTick >= limiterTotal ) {
+        if( mousedown ) {
+            // start the firework at the bottom middle of the screen, then set the current mouse coordinates as the target
+            fireworks.push( new Firework( cw / 2, ch, mx, my ) );
+            limiterTick = 0;
+        }
+    } else {
+        limiterTick++;
+    }
+}
+
+// mouse event bindings
+// update the mouse coordinates on mousemove
+canvas.addEventListener( 'mousemove', function( e ) {
+    mx = e.pageX - canvas.offsetLeft;
+    my = e.pageY - canvas.offsetTop;
+});
+
+// toggle mousedown state and prevent canvas from being selected
+canvas.addEventListener( 'mousedown', function( e ) {
+    e.preventDefault();
+    mousedown = true;
+});
+
+canvas.addEventListener( 'mouseup', function( e ) {
+    e.preventDefault();
+    mousedown = false;
+});
+
+// once the window loads, we are ready for some fireworks!
+window.onload = loop;
+
+
+
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="fullscreen-bg" id="ff">
     <!-- <video loop muted autoplay poster="img/videoframe.jpg" class="fullscreen-bg__video"> -->
         <!-- <source src="video/big_buck_bunny.webm" type="video/webm"> -->
         <!-- <source src="crackers.mp4" type="video/mp4"> -->
         <!-- <source src="video/big_buck_bunny.ogv" type="video/ogg"> -->
     <!-- </video> -->
-    <!-- <video loop muted autoplay poster="img/videoframe.jpg" class="fullscreen-bg__video">
+   <!--  <video loop muted autoplay poster="img/videoframe.jpg" class="fullscreen-bg__video">
         <source src="crackers.mp4" type="video/mp4">
     </video> -->
-    <img class="fullscreen-bg__video"
+  <!--   <img class="fullscreen-bg__video"
   src="crackers3.gif" 
   dynsrc="crackers3.gif"
   loop=infinite
-  alt="Crackers!!!">
+  alt="Crackers!!!"> -->
+  <img src="crackers.jpg" class="fullscreen-bg__video">
     </div>
-</div>
+<!-- </div> -->
 <div class="wish" >
 <p class="wisher" id="from">Our team</p>
 <p><h2>wishes you a very</h2></p>
@@ -134,25 +351,33 @@ console.log(uobj.parameters.to);
 <i><p class="message" id="message">"May millions of lamps illuminate your life<br> with endless joy,prosperity and wealth forever."</p></i>
 <script>
         if(QueryString.from!=null){
-        document.getElementById("from").innerHTML= QueryString.from;
+        document.getElementById("from").innerHTML= atob(QueryString.from);
         }
         if (QueryString.message!=null && QueryString.message!="") {
-        document.getElementById("message").innerHTML = "\""+QueryString.message+"\"";
+        document.getElementById("message").innerHTML = "\""+atob(QueryString.message)+"\"";
     }
 </script>
 <!-- <a href="create.html">Create your wish</a> -->
-<!-- <form action="http://0.0.0.0:8000/create.html">
-    <input id="btni" type="submit" value="Create your own" width=200px />
-</form> -->
-<!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script> -->
-<!-- <script type="text/javascript" src="firework.js"></script> -->
+<form>
+    <input id="btni" type="submit" value="Create your Greeting!" width=200px  />
+</form>
+<script type="text/javascript">
+    $('#btni').click(function(e) {
+            e.preventDefault();
+
+  $('#fullform').toggle('slow', function() {
+    // Animation complete.
+  });
+});
+</script>
+
 
 </div>
 
 
 
 <!-- =========================================================== -->
-<div class="fform">
+<div class="fform" id="fullform">
 <div class="cform">
 <h3 >Create your Greeting!</h3>
 
@@ -160,31 +385,32 @@ console.log(uobj.parameters.to);
   <!-- From:<br> -->
   <input id="from_name" type="text" name="from" placeholder="Your Name" required="">
   <p id="examples">ex. Rohan Sharma, Gupta Family</p>
-  <!-- To:<br> -->
-  <!-- <input id="to_name" type="text" name="to" placeholder="To" required=""> -->
-  <!-- <br> -->
   <textarea id="cmessage" placeholder="Type your message (Optional)"></textarea>
     <br>
   <script type="text/javascript">
   var from_name, to_name;
   function createYourWish() {
              from_name= document.getElementById("from_name").value;
-             // to_name= document.getElementById("to_name").value;
        message=document.getElementById("cmessage").value;
-            console.log("message:::: "+message);
+            // console.log("message:::: "+message);
             // document.getElementById("link").innerHTML = "http://0.0.0.0:8000/index.html?from="+ from_name +"&message="+message;
             // document.getElementById("link").href = "http://0.0.0.0:8000/index.html?from="+ from_name +"&message="+message;
-      document.getElementById("tea").innerHTML = "http://0.0.0.0:8000/index.html?from="+ from_name +"&message="+message;
+      document.getElementById("tea").innerHTML = "http://0.0.0.0:8000/index.html?from="+ btoa(from_name) +"&message="+btoa(message);
         }
         </script>
   <input id="btn" type="button" value="Generate Link" onclick="createYourWish()">
 </form>
 </div>
 <!-- <a id="link" class="copytextarea" href="link">link</a> -->
+<!-- <script type="text/javascript">
+    function showCYW(){
+        document.querySelector('.fform').style.display="block";
+    }
+</script> -->
 <div class="copylink">
 <textarea class="ta" id="tea" placeholder="Generate your link, copy and share. Simple!" readonly></textarea>
 <p>
-  <button class="linkcopybutton" id="btn2">Copy Link</button>
+  <button class="linkcopybutton" type="button" id="btn2">Copy Link</button>
 </p>
 </div>
 <script type="text/javascript">
@@ -196,33 +422,12 @@ copyTextareaBtn.addEventListener('click', function(event) {
 
   try {
     var successful = document.execCommand('copy');
-    alert(successful);
+    // alert(successful);
   } catch (err) {
   }
 });
 </script>
 
-
-<!-- <script type="text/javascript">
-  var QueryString = function () {
-  var query_string = {};
-  var query = window.location.search.substring(1);
-  var vars = query.split("&");
-  for (var i=0;i<vars.length;i++) {
-    var pair = vars[i].split("=");
-    if (typeof query_string[pair[0]] === "undefined") {
-      query_string[pair[0]] = decodeURIComponent(pair[1]);
-    } else if (typeof query_string[pair[0]] === "string") {
-      var arr = [ query_string[pair[0]],decodeURIComponent(pair[1]) ];
-      query_string[pair[0]] = arr;
-    } else {
-      query_string[pair[0]].push(decodeURIComponent(pair[1]));
-    }
-  } 
-  return query_string;
-}();
-console.log(QueryString.from+QueryString.to);
-</script> -->
 <!-- <div class="diya">
  <img class="diyaimg" 
   src="diya.gif" 
@@ -230,5 +435,10 @@ console.log(QueryString.from+QueryString.to);
   loop=infinite
   alt="Crackers!!!">
   </div> -->
+<!-- <iframe id="fbshare" src="https://www.facebook.com/plugins/share_button.php?href=http%3A%2F%2Fhappydiwali.gq&layout=button&size=large&mobile_iframe=true&appId=541902539295167&width=74&height=28" width="74" height="28" style="border:none;overflow:hidden" scrolling="no" frameborder="0" allowTransparency="true"></iframe>
+</div> -->
+
+
+<div align=left><img src='http://www.counter12.com/img-w8Zz9AW3-26.gif' border='0' alt='counter'></a><script type='text/javascript' src='http://www.counter12.com/ad.js?id=w8Zz9AW3'></script></div>
 </body>
 </html>
